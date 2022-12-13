@@ -28,7 +28,6 @@ object PartOne {
 		val directoryTable = scala.collection.mutable.Map[String, Int]("/" -> 0)
 
 		for (line <- Source.fromFile(inputPath).getLines) {
-			// println(pwd)
 			line match 
 				case Instruction("cd", "..") => {
 					pwd = pwd.tail
@@ -47,7 +46,15 @@ object PartOne {
 				case File(name, size, false) => {
 					// update curr dir file in the map
 					//println(s"regular file: $line")
-					pwd.foreach(directory => directoryTable(directory) += size)
+					pwd.reverse.zipWithIndex.foreach({ 
+						case (_, idx) => {
+							val x = pwd.reverse.take(idx+1)
+							directoryTable.updateWith(x.mkString(","))({
+								case Some(x) => Some(x + size)
+								case None => Some(size)
+							})
+						}
+					})
 				}
 				case _ => println("unknown")
 		}
